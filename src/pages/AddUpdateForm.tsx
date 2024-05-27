@@ -1,13 +1,17 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Product } from "../interfaces/Product";
 import * as Yup from "yup";
+import { AppDispatch } from "../state/store";
+import { addProduct, updateProduct } from "../functions/productThunks";
 
 export const AddUpdateForm = ({ AddOrUpdate }: { AddOrUpdate: string }) => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const [initialValues, setInitialValues] = useState<Product>({
     id: crypto.randomUUID(),
     imageUrl: "",
@@ -30,17 +34,9 @@ export const AddUpdateForm = ({ AddOrUpdate }: { AddOrUpdate: string }) => {
 
   const onSubmit = (data: Product) => {
     if (AddOrUpdate === "Add") {
-      axios.post("http://localhost:5000/products", data).then((response) => {
-        console.log(response.data);
-        navigate("/");
-      });
+      dispatch(addProduct(data)).then(() => navigate("/"));
     } else if (AddOrUpdate === "Update" && productId) {
-      axios
-        .put(`http://localhost:5000/products/${productId}`, data)
-        .then((response) => {
-          console.log(response.data);
-          navigate("/");
-        });
+      dispatch(updateProduct(data)).then(() => navigate("/"));
     }
   };
 
